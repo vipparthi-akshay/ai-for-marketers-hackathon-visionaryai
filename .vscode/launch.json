@@ -1,0 +1,53 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Start Frontend (quick preview)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}/frontend"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Start Frontend Dev Server"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "name": "Start Backend",
+            "module": "uvicorn",
+            "args": ["app.main:app", "--reload", "--port", "8000"],
+            "cwd": "${workspaceFolder}/backend",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start Frontend",
+            "runtimeExecutable": "npx",
+            "args": ["next", "dev", "--port", "3000"],
+            "cwd": "${workspaceFolder}/frontend",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "name": "Start Backend (no reload)",
+            "module": "uvicorn",
+            "args": ["app.main:app", "--port", "8000"],
+            "cwd": "${workspaceFolder}/backend",
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug MarketPilot (frontend + backend)",
+            "configurations": ["Start Backend", "Start Frontend", "Launch Chrome"]
+        }
+    ]
+}
