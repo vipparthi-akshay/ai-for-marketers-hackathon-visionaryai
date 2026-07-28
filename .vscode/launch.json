@@ -13,8 +13,7 @@
             "request": "launch",
             "name": "Launch Chrome",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "Start Frontend Dev Server"
+            "webRoot": "${workspaceFolder}"
         },
         {
             "type": "python",
