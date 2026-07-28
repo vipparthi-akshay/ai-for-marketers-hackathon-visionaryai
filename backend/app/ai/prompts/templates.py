@@ -266,6 +266,12 @@ Provide competitive analysis as JSON:
     "differentiation_opportunities": ["..."]
 }}"""
 
+
+def safe_format(template: str, **kwargs) -> str:
+    escaped = {k: str(v).replace("{", "{{").replace("}", "}") for k, v in kwargs.items()}
+    return template.format(**escaped)
+
+
 CHAT_ASSISTANT_SYSTEM = """You are MarketPilot AI's marketing assistant.
 You help users with marketing strategy, content creation, campaign optimization, and analytics interpretation.
 Be concise, actionable, and professional. Reference the user's business data when possible."""
@@ -336,4 +342,160 @@ Provide predictions as JSON:
         "month_12": <number>
     }},
     "recommendations": ["..."]
+}}"""
+
+BRAND_VOICE_SYSTEM = """You are an expert brand strategist for MarketPilot AI.
+Develop comprehensive brand voice guidelines and messaging frameworks.
+Always respond with valid JSON only."""
+
+BRAND_VOICE_PROMPT = """Develop a brand voice guide for:
+
+Business: {business_name}
+Industry: {industry}
+Description: {description}
+Existing Brand Voice: {brand_voice}
+Target Audience: {target_audience}
+
+Provide brand voice guidelines as JSON:
+{{
+    "brand_personality": {{
+        "primary_traits": ["..."],
+        "tone_descriptors": ["..."],
+        "brand_archetype": "..."
+    }},
+    "voice_characteristics": {{
+        "formality_level": "casual/semi-formal/formal",
+        "humor_level": "none/subtle/moderate/playful",
+        "emotion_level": "reserved/balanced/expressive",
+        "confidence_level": "humble/balanced/assertive"
+    }},
+    "messaging_framework": {{
+        "tagline": "...",
+        "elevator_pitch": "...",
+        "value_proposition": "...",
+        "key_messages": ["..."]
+    }},
+    "writing_guidelines": {{
+        "do": ["..."],
+        "dont": ["..."],
+        "word_preferences": ["..."],
+        "words_to_avoid": ["..."]
+    }},
+    "channel_tone_adjustments": {{
+        "social_media": "...",
+        "email": "...",
+        "website": "...",
+        "ads": "..."
+    }},
+    "example_copy": {{
+        "social_post": "...",
+        "email_subject": "...",
+        "ad_headline": "...",
+        "website_hero": "..."
+    }}
+}}"""
+
+ROI_PREDICTION_SYSTEM = """You are an expert marketing ROI analyst for MarketPilot AI.
+Provide detailed ROI predictions with scenario modeling and actionable optimization strategies.
+Always respond with valid JSON only."""
+
+ROI_PREDICTION_PROMPT = """Predict ROI for this marketing investment:
+
+Business: {business_name}
+Industry: {industry}
+Monthly Budget: {budget}
+Current Campaigns: {campaign_count}
+Target Audience: {target_audience}
+Historical Performance: {historical_data}
+
+Provide ROI prediction as JSON:
+{{
+    "baseline_scenario": {{
+        "monthly_revenue": <number>,
+        "monthly_cost": <number>,
+        "net_profit": <number>,
+        "roi_percent": <number>,
+        "roas": <number>
+    }},
+    "optimistic_scenario": {{
+        "monthly_revenue": <number>,
+        "monthly_cost": <number>,
+        "net_profit": <number>,
+        "roi_percent": <number>,
+        "roas": <number>
+    }},
+    "conservative_scenario": {{
+        "monthly_revenue": <number>,
+        "monthly_cost": <number>,
+        "net_profit": <number>,
+        "roi_percent": <number>,
+        "roas": <number>
+    }},
+    "channel_breakdown": [
+        {{
+            "channel": "...",
+            "estimated_spend": <number>,
+            "estimated_revenue": <number>,
+            "roi_percent": <number>,
+            "confidence": "high/medium/low"
+        }}
+    ],
+    "optimization_recommendations": [
+        {{
+            "action": "...",
+            "expected_impact": "...",
+            "priority": "high/medium/low"
+        }}
+    ],
+    "break_even_analysis": {{
+        "break_even_months": <number>,
+        "cumulative_investment_at_breakeven": <number>
+    }}
+}}"""
+
+CONTENT_CALENDAR_SYSTEM = """You are an expert content strategist for MarketPilot AI.
+Create detailed content calendars with platform-specific strategies.
+Always respond with valid JSON only."""
+
+CONTENT_CALENDAR_PROMPT = """Create a {timeframe} content calendar for:
+
+Business: {business_name}
+Industry: {industry}
+Target Audience: {target_audience}
+Platforms: {platforms}
+Goals: {goals}
+
+Provide content calendar as JSON:
+{{
+    "calendar": [
+        {{
+            "date": "YYYY-MM-DD",
+            "day_of_week": "...",
+            "platform": "...",
+            "content_type": "...",
+            "topic": "...",
+            "hook": "...",
+            "hashtags": ["..."],
+            "best_time": "...",
+            "priority": "high/medium/low",
+            "notes": "..."
+        }}
+    ],
+    "content_mix": {{
+        "educational": <percent>,
+        "entertaining": <percent>,
+        "promotional": <percent>,
+        "inspirational": <percent>
+    }},
+    "posting_frequency": {{
+        "platform1": "X times per week",
+        "platform2": "X times per week"
+    }},
+    "key_dates": [
+        {{
+            "date": "YYYY-MM-DD",
+            "event": "...",
+            "content_opportunity": "..."
+        }}
+    ]
 }}"""

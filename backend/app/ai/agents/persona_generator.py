@@ -2,11 +2,13 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     PERSONA_GENERATOR_PROMPT,
     PERSONA_GENERATOR_SYSTEM,
+    safe_format,
 )
 
 
 async def generate_personas(business) -> dict:
-    prompt = PERSONA_GENERATOR_PROMPT.format(
+    prompt = safe_format(
+        PERSONA_GENERATOR_PROMPT,
         name=business.name,
         industry=business.industry,
         description=business.description or "Not provided",

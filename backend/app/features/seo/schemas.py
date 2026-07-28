@@ -1,30 +1,14 @@
-import uuid
-
 from pydantic import BaseModel
 
 
 class SEOAnalyzeRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     url: str = ""
 
 
-class SEOKeyword(BaseModel):
-    keyword: str
-    difficulty: int = 50
-    volume: str = "medium"
-    relevance: int = 70
-
-
-class SEOIssue(BaseModel):
-    severity: str = "medium"
-    category: str = ""
-    description: str = ""
-    fix: str = ""
-
-
 class SEOResponse(BaseModel):
-    id: uuid.UUID
-    business_id: uuid.UUID
+    id: str
+    business_id: str
     url: str | None = None
     report_type: str
     score: int | None = None

@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -11,8 +10,9 @@ class ChatMessage(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     message: str
+    context: list[dict] | None = None
 
 
 class ChatResponse(BaseModel):

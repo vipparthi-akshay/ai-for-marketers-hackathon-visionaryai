@@ -1,10 +1,10 @@
-import uuid
+from datetime import datetime
 
 from pydantic import BaseModel
 
 
 class AdsGenerateRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     platform: str = "google"
     objective: str = "conversions"
     budget: float = 1000.0
@@ -21,8 +21,8 @@ class AdVariation(BaseModel):
 
 
 class AdsResponse(BaseModel):
-    id: uuid.UUID
-    business_id: uuid.UUID
+    id: str
+    business_id: str
     platform: str
     ad_type: str
     headlines: list | None = None
@@ -33,7 +33,7 @@ class AdsResponse(BaseModel):
     predicted_cpc: float | None = None
     ab_variations: list | None = None
     status: str
-    created_at: uuid.UUID
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 

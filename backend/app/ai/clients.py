@@ -1,8 +1,11 @@
 import json
 import logging
+import warnings
 from typing import Any
 
-import google.generativeai as genai
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    import google.generativeai as genai
 
 from app.core.config import get_settings
 
@@ -90,6 +93,47 @@ class AIClient:
             "AI service is temporarily unavailable. "
             "Please configure GEMINI_API_KEY in your .env file to enable AI features."
         )
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        system_instruction: str | None = None,
+        use_pro: bool = False,
+        temperature: float = 0.7,
+    ):
+        model = self._pro_model if use_pro else self._model
+
+        if model is None:
+            yield self._fallback_response(prompt)
+            return
+
+        try:
+            generation_config = genai.types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=8192,
+            )
+
+            if system_instruction:
+                response = await model.generate_content_async(
+                    prompt,
+                    generation_config=generation_config,
+                    system_instruction=system_instruction,
+                    stream=True,
+                )
+            else:
+                response = await model.generate_content_async(
+                    prompt,
+                    generation_config=generation_config,
+                    stream=True,
+                )
+
+            async for chunk in response:
+                if chunk.text:
+                    yield chunk.text
+
+        except Exception as e:
+            logger.error(f"AI streaming error: {e}")
+            yield self._fallback_response(prompt)
 
 
 ai_client = AIClient()

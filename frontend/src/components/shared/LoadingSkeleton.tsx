@@ -11,7 +11,7 @@ interface LoadingSkeletonProps {
 export function LoadingSkeleton({ className, lines = 3, type = "card" }: LoadingSkeletonProps) {
   if (type === "card") {
     return (
-      <div className={cn("rounded-xl border border-border/50 bg-card p-6 animate-pulse", className)}>
+      <div className={cn("rounded-lg border border-border bg-card p-6 animate-pulse", className)}>
         <div className="h-4 bg-muted rounded w-1/3 mb-4" />
         <div className="h-3 bg-muted rounded w-full mb-2" />
         <div className="h-3 bg-muted rounded w-2/3" />
@@ -31,11 +31,11 @@ export function LoadingSkeleton({ className, lines = 3, type = "card" }: Loading
 
   if (type === "chart") {
     return (
-      <div className={cn("rounded-xl border border-border/50 bg-card p-6 animate-pulse", className)}>
+      <div className={cn("rounded-lg border border-border bg-card p-6 animate-pulse", className)}>
         <div className="h-4 bg-muted rounded w-1/4 mb-6" />
         <div className="flex items-end gap-2 h-40">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex-1 bg-muted rounded-t" style={{ height: `${30 + Math.random() * 60}%` }} />
+            <div key={i} className="flex-1 bg-muted rounded-t" style={{ height: `${40 + i * 10}%` }} />
           ))}
         </div>
       </div>

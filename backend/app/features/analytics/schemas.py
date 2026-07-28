@@ -1,5 +1,3 @@
-import uuid
-
 from pydantic import BaseModel
 
 
@@ -17,7 +15,7 @@ class DashboardResponse(BaseModel):
 
 
 class AnalyticsPredictRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     budget: float = 1000.0
 
 

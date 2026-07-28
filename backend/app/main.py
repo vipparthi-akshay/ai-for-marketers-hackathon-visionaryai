@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from app.core.config import get_settings
 from app.core.exceptions import AppException
 from app.api.v1.router import api_router
+from app.core.rate_limiter import RateLimitMiddleware
+from app.core.security_headers import SecurityHeadersMiddleware
 
 settings = get_settings()
 
@@ -20,9 +22,25 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from app.core.database import engine, Base
+    from app.core.cache import init_redis, close_redis
+    from app.features.auth.models import User, PasswordReset, LoginAttempt
+    from app.features.business.models import Organization, OrganizationMember, Business
+    from app.features.business.extended_models import Persona, Campaign
+    from app.features.content.models import MarketingAsset, SEOReport, AdCampaign, Competitor, AutomationWorkflow, Chat, AIUsage, Notification
+
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
+
+    await init_redis()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database tables created/verified")
+
     yield
+
+    await close_redis()
     logger.info("Shutting down...")
 
 
@@ -33,14 +51,18 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs" if settings.ENVIRONMENT == "development" else None,
     redoc_url="/redoc" if settings.ENVIRONMENT == "development" else None,
+    openapi_url="/openapi.json" if settings.ENVIRONMENT == "development" else None,
 )
+
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 
@@ -52,7 +74,7 @@ async def app_exception_handler(request: Request, exc: AppException):
             "success": False,
             "error": {
                 "code": exc.code,
-                "message": exc.detail,
+                "detail": exc.detail,
             },
         },
     )
@@ -91,5 +113,5 @@ async def root():
     return {
         "name": settings.APP_NAME,
         "version": settings.APP_VERSION,
-        "docs": "/docs",
+        "docs": "/docs" if settings.ENVIRONMENT == "development" else None,
     }

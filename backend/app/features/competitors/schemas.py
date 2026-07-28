@@ -1,17 +1,17 @@
-import uuid
+from datetime import datetime
 
 from pydantic import BaseModel
 
 
 class CompetitorAnalyzeRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     competitor_name: str
     website_url: str = ""
 
 
 class CompetitorResponse(BaseModel):
-    id: uuid.UUID
-    business_id: uuid.UUID
+    id: str
+    business_id: str
     name: str
     website_url: str | None = None
     analysis: dict | None = None
@@ -20,6 +20,6 @@ class CompetitorResponse(BaseModel):
     marketing_gaps: list | None = None
     content_gaps: list | None = None
     recommendations: list | None = None
-    created_at: uuid.UUID
+    created_at: datetime
 
     model_config = {"from_attributes": True}

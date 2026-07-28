@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     CONTENT_ENGINE_PROMPT,
     CONTENT_ENGINE_SYSTEM,
+    safe_format,
 )
 
 
@@ -15,7 +16,8 @@ async def generate_content(
     topic: str = "",
     instructions: str = "",
 ) -> dict:
-    prompt = CONTENT_ENGINE_PROMPT.format(
+    prompt = safe_format(
+        CONTENT_ENGINE_PROMPT,
         content_type=content_type,
         business_name=business_name,
         industry=industry,

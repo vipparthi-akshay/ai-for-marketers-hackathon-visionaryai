@@ -1,16 +1,14 @@
-import uuid
-
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, verify_business_access
 from app.core.exceptions import NotFoundException
 from app.features.auth.models import User
 from app.features.business.models import Business
 from app.features.content.models import AdCampaign
-from app.features.ads.schemas import AdsGenerateRequest, AdsGenerateResponse, AdVariation
+from app.features.ads.schemas import AdsGenerateRequest, AdsGenerateResponse, AdsResponse, AdVariation
 from app.ai.agents.ads_agent import generate_ads
 
 router = APIRouter(prefix="/ads", tags=["Ads Optimization"])
@@ -22,12 +20,7 @@ async def generate_ads_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Business).where(Business.id == data.business_id)
-    )
-    business = result.scalar_one_or_none()
-    if business is None:
-        raise NotFoundException("Business", str(data.business_id))
+    business = await verify_business_access(data.business_id, current_user=current_user, db=db)
 
     ai_result = await generate_ads(
         business_name=business.name,
@@ -76,15 +69,57 @@ async def generate_ads_endpoint(
     )
 
 
-@router.get("/{business_id}")
+@router.get("/{business_id}", response_model=list[AdsResponse])
 async def list_ads(
-    business_id: uuid.UUID,
+    business_id: str,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    await verify_business_access(business_id, current_user=current_user, db=db)
+
+    offset = (page - 1) * page_size
     result = await db.execute(
         select(AdCampaign)
         .where(AdCampaign.business_id == business_id)
         .order_by(AdCampaign.created_at.desc())
+        .offset(offset)
+        .limit(page_size)
     )
-    return result.scalars().all()
+    ads = result.scalars().all()
+    return [AdsResponse.model_validate(a) for a in ads]
+
+
+@router.get("/detail/{ad_id}", response_model=AdsResponse)
+async def get_ad(
+    ad_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AdCampaign).where(AdCampaign.id == ad_id)
+    )
+    ad = result.scalar_one_or_none()
+    if ad is None:
+        raise NotFoundException("Ad Campaign", str(ad_id))
+    await verify_business_access(ad.business_id, current_user=current_user, db=db)
+    return AdsResponse.model_validate(ad)
+
+
+@router.delete("/detail/{ad_id}", status_code=status.HTTP_200_OK)
+async def delete_ad(
+    ad_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AdCampaign).where(AdCampaign.id == ad_id)
+    )
+    ad = result.scalar_one_or_none()
+    if ad is None:
+        raise NotFoundException("Ad Campaign", str(ad_id))
+    await verify_business_access(ad.business_id, current_user=current_user, db=db)
+    await db.delete(ad)
+    await db.flush()
+    return {"success": True, "message": "Ad campaign deleted"}

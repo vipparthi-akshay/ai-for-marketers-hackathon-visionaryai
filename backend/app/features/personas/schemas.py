@@ -1,12 +1,11 @@
-import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
 
 
 class PersonaResponse(BaseModel):
-    id: uuid.UUID
-    business_id: uuid.UUID
+    id: str
+    business_id: str
     name: str
     age_range: str | None = None
     job_title: str | None = None
@@ -25,7 +24,7 @@ class PersonaResponse(BaseModel):
 
 
 class PersonaGenerateRequest(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
 
 
 class PersonaGenerateResponse(BaseModel):

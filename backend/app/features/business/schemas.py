@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -9,7 +8,7 @@ class OrganizationCreate(BaseModel):
 
 
 class OrganizationResponse(BaseModel):
-    id: uuid.UUID
+    id: str
     name: str
     slug: str
     plan: str
@@ -45,8 +44,8 @@ class BusinessUpdate(BaseModel):
 
 
 class BusinessResponse(BaseModel):
-    id: uuid.UUID
-    organization_id: uuid.UUID
+    id: str
+    organization_id: str
     name: str
     industry: str
     description: str | None = None
@@ -68,7 +67,7 @@ class BusinessResponse(BaseModel):
 
 
 class BusinessAnalysisResponse(BaseModel):
-    business_id: uuid.UUID
+    business_id: str
     marketing_score: int
     swot: dict
     opportunities: list[str]

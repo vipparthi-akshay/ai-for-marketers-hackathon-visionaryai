@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     ANALYTICS_PREDICTION_PROMPT,
     ANALYTICS_PREDICTION_SYSTEM,
+    safe_format,
 )
 
 
@@ -13,7 +14,8 @@ async def predict_analytics(
     content_count: int,
     target_audience: str,
 ) -> dict:
-    prompt = ANALYTICS_PREDICTION_PROMPT.format(
+    prompt = safe_format(
+        ANALYTICS_PREDICTION_PROMPT,
         business_name=business_name,
         industry=industry,
         budget=f"${budget:,.2f}",

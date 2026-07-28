@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     ADS_GENERATOR_PROMPT,
     ADS_GENERATOR_SYSTEM,
+    safe_format,
 )
 
 
@@ -13,7 +14,8 @@ async def generate_ads(
     budget: float,
     target_audience: str,
 ) -> dict:
-    prompt = ADS_GENERATOR_PROMPT.format(
+    prompt = safe_format(
+        ADS_GENERATOR_PROMPT,
         business_name=business_name,
         industry=industry,
         platform=platform,

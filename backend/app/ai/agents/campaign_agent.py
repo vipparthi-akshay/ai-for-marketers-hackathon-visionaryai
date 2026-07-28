@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     CAMPAIGN_BUILDER_PROMPT,
     CAMPAIGN_BUILDER_SYSTEM,
+    safe_format,
 )
 
 
@@ -14,7 +15,8 @@ async def build_campaign(
     target_audience: str,
     platforms: list[str],
 ) -> dict:
-    prompt = CAMPAIGN_BUILDER_PROMPT.format(
+    prompt = safe_format(
+        CAMPAIGN_BUILDER_PROMPT,
         business_name=business_name,
         industry=industry,
         objective=objective,

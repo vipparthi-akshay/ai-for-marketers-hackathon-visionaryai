@@ -2,11 +2,13 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     BUSINESS_ANALYZER_PROMPT,
     BUSINESS_ANALYZER_SYSTEM,
+    safe_format,
 )
 
 
 async def analyze_business_profile(business) -> dict:
-    prompt = BUSINESS_ANALYZER_PROMPT.format(
+    prompt = safe_format(
+        BUSINESS_ANALYZER_PROMPT,
         name=business.name,
         industry=business.industry,
         description=business.description or "Not provided",

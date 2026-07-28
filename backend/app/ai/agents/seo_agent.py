@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     SEO_ENGINE_PROMPT,
     SEO_ENGINE_SYSTEM,
+    safe_format,
 )
 
 
@@ -11,7 +12,8 @@ async def analyze_seo(
     website_url: str,
     description: str,
 ) -> dict:
-    prompt = SEO_ENGINE_PROMPT.format(
+    prompt = safe_format(
+        SEO_ENGINE_PROMPT,
         business_name=business_name,
         industry=industry,
         website_url=website_url or "Not provided",

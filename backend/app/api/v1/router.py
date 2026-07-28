@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 
 from app.features.auth.router import router as auth_router
+from app.features.auth.settings_router import router as settings_router
+from app.features.auth.notifications_router import router as notifications_router
+from app.features.auth.social_router import router as social_router
 from app.features.business.router import router as business_router
 from app.features.content.router import router as content_router
 from app.features.campaigns.router import router as campaigns_router
@@ -11,10 +14,14 @@ from app.features.competitors.router import router as competitors_router
 from app.features.analytics.router import router as analytics_router
 from app.features.automation.router import router as automation_router
 from app.features.chat.router import router as chat_router
+from app.features.email.router import router as email_router
 
 api_router = APIRouter(prefix="/api/v1")
 
 api_router.include_router(auth_router)
+api_router.include_router(settings_router)
+api_router.include_router(notifications_router)
+api_router.include_router(social_router)
 api_router.include_router(business_router)
 api_router.include_router(content_router)
 api_router.include_router(campaigns_router)
@@ -25,3 +32,4 @@ api_router.include_router(competitors_router)
 api_router.include_router(analytics_router)
 api_router.include_router(automation_router)
 api_router.include_router(chat_router)
+api_router.include_router(email_router)

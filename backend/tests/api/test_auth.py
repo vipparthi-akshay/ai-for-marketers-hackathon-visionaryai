@@ -1,5 +1,7 @@
+from uuid import uuid4
+
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from app.main import app
 
 
@@ -29,11 +31,12 @@ async def test_root(client):
 
 @pytest.mark.asyncio
 async def test_register_and_login(client):
+    email = f"test-{uuid4().hex}@example.com"
     register_response = await client.post(
         "/api/v1/auth/register",
         json={
-            "email": "test@example.com",
-            "password": "password123",
+            "email": email,
+            "password": "Password123!",
             "full_name": "Test User",
         },
     )
@@ -41,7 +44,7 @@ async def test_register_and_login(client):
     data = register_response.json()
     assert "access_token" in data
     assert "refresh_token" in data
-    assert data["user"]["email"] == "test@example.com"
+    assert data["user"]["email"] == email
 
 
 @pytest.mark.asyncio
@@ -56,4 +59,4 @@ async def test_login_invalid_credentials(client):
 @pytest.mark.asyncio
 async def test_get_me_unauthorized(client):
     response = await client.get("/api/v1/auth/me")
-    assert response.status_code == 403
+    assert response.status_code == 401

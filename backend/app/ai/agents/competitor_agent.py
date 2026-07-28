@@ -2,6 +2,7 @@ from app.ai.clients import ai_client
 from app.ai.prompts.templates import (
     COMPETITOR_ANALYSIS_PROMPT,
     COMPETITOR_ANALYSIS_SYSTEM,
+    safe_format,
 )
 
 
@@ -12,7 +13,8 @@ async def analyze_competitor(
     website_url: str,
     target_audience: str,
 ) -> dict:
-    prompt = COMPETITOR_ANALYSIS_PROMPT.format(
+    prompt = safe_format(
+        COMPETITOR_ANALYSIS_PROMPT,
         business_name=business_name,
         industry=industry,
         description=description or "Not provided",
