@@ -2,10 +2,6 @@
 
 ## "The Autonomous AI Marketing Team"
 
-[![Live Website](https://img.shields.io/badge/LIVE_WEBSITE-marketpilotai.us-brightgreen?style=for-the-badge)](https://marketpilotai.us)
-[![Frontend](https://img.shields.io/badge/FRONTEND-localhost_3000-blue?style=for-the-badge)](#quick-start)
-[![API Docs](https://img.shields.io/badge/API_DOCS-localhost_8000/docs-orange?style=for-the-badge)](#quick-start)
-
 > AI-powered marketing operating system for small businesses. Automate content, SEO, ads, campaigns, analytics, and more — all from one platform.
 
 ---
