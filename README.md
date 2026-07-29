@@ -47,8 +47,10 @@ Deploy this project to the cloud for free in 2 minutes. No local setup required.
 **Step 2: Deploy Frontend (Vercel)**
 1. Click the **"Deploy with Vercel"** button above
 2. Sign up with your GitHub account (free)
-3. In Vercel project settings, set **Root Directory** to `frontend`
-4. Vercel will import the repository and deploy the frontend
+3. **Important:** In Vercel project settings, set **Root Directory** to `frontend`
+   - Go to **Settings** → **General** → **Root Directory** → enter `frontend`
+   - This tells Vercel where your `package.json` with Next.js is located
+4. Click **Deploy**
 5. Wait ~1-2 minutes for deployment to complete
 6. Copy your Vercel frontend URL (e.g., `https://marketpilot-frontend.vercel.app`)
 
