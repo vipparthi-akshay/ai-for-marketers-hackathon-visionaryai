@@ -28,6 +28,26 @@ Open **http://localhost:3000** in your browser.
 
 ---
 
+## 🌐 Live Demo (One-Click Deploy)
+
+Deploy this project to the cloud for free in 2 minutes. No local setup required.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/new/template?template=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+
+### Deploy Steps
+
+1. **Backend (Railway):** Click the Railway button above → Sign up with GitHub → Deploy. Copy your Railway backend URL.
+2. **Frontend (Vercel):** Click the Vercel button above → Sign up with GitHub → Import this repository.
+3. **Connect them:** In Vercel project settings, set `NEXT_PUBLIC_API_URL` to your Railway backend URL.
+4. **CORS:** In Railway backend environment variables, set `CORS_ORIGINS` to your Vercel frontend URL.
+
+> **Live URLs will appear here after deployment!**
+> - Frontend: `https://marketpilot-frontend.vercel.app`
+> - Backend: `https://marketpilot-api.up.railway.app`
+
+---
+
 ## Live Demo (Local)
 
 When you run the project locally, you get:
