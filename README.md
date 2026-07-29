@@ -47,9 +47,10 @@ Deploy this project to the cloud for free in 2 minutes. No local setup required.
 **Step 2: Deploy Frontend (Vercel)**
 1. Click the **"Deploy with Vercel"** button above
 2. Sign up with your GitHub account (free)
-3. **Important:** In Vercel project settings, set **Root Directory** to `frontend`
-   - Go to **Settings** → **General** → **Root Directory** → enter `frontend`
-   - This tells Vercel where your `package.json` with Next.js is located
+3. **CRITICAL:** Before deploying, set the **Root Directory** to `frontend`
+   - In the Vercel import screen, look for **Root Directory** or go to **Settings** → **General** → **Root Directory**
+   - Set it to: `frontend`
+   - **Why:** Your Next.js app is in the `frontend/` folder, not the repo root
 4. Click **Deploy**
 5. Wait ~1-2 minutes for deployment to complete
 6. Copy your Vercel frontend URL (e.g., `https://marketpilot-frontend.vercel.app`)
@@ -67,13 +68,26 @@ Deploy this project to the cloud for free in 2 minutes. No local setup required.
    - **Value:** Your Vercel frontend URL (from Step 2)
 3. Railway will automatically redeploy with the new settings
 
+### Troubleshooting Vercel
+
+**Error: "No Next.js version detected"**
+- **Cause:** Vercel is looking for `package.json` in the repo root, but your Next.js app is in `frontend/`
+- **Fix:** Set **Root Directory** to `frontend` in Vercel project settings:
+  1. Go to your Vercel project
+  2. Click **Settings** → **General**
+  3. Find **Root Directory** and set it to `frontend`
+  4. Save and trigger a new deploy
+
+**Error: "Cannot read image.png"**
+- This is from Vercel's AI platform features, not from this codebase
+- The deployment will still succeed
+- To suppress it: disable AI-powered site analysis in Vercel project settings
+
 ### Verify Deployment
 
 - **Frontend:** Open your Vercel URL in a browser
 - **Backend Health:** Visit `https://your-railway-url.up.railway.app/health` - should return `{"status": "healthy"}`
 - **API Docs:** Visit `https://your-railway-url.up.railway.app/docs`
-
-> **Note:** If you see an error about "image.png" during Vercel deployment, this is from Vercel's platform AI features, not from this codebase. The deployment will still succeed. If needed, disable AI-powered site analysis in your Vercel project settings.
 
 ---
 
