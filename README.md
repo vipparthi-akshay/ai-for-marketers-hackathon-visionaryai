@@ -6,15 +6,32 @@
 
 ---
 
-## 🚀 Live Demo (Local)
+## 🚀 Clone & Run (One Command)
 
-Run the full website locally with Docker Compose:
+**Prerequisite:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and make sure it's running.
+
+Then run:
+
+| Platform | Command / File |
+|---|---|
+| **Windows** | Double-click `setup.bat` |
+| **Mac / Linux** | Run `bash run.sh` |
+| **Any (PowerShell)** | Run `.\run-hackathon.ps1` |
+
+Or directly with Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-This starts:
+Open **http://localhost:3000** in your browser.
+
+---
+
+## Live Demo (Local)
+
+When you run the project locally, you get:
+
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000
 - **API Docs:** http://localhost:8000/docs
@@ -27,32 +44,30 @@ This starts:
 
 ### Prerequisites
 
-- Python 3.11+
-- Node.js 20+
-- PostgreSQL 15+ (or SQLite for development)
-- Redis 7+ (optional, for production rate limiting)
-- Gemini API key (or OpenAI key as fallback)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (recommended)
+- OR Python 3.11+, Node.js 20+, PostgreSQL 15+, Redis 7+
 
-### 1. Clone & Setup
+### 1. Clone the Repository
 
 ```bash
-cd "AI for Marketers Hackathon"
-cp backend/.env.example backend/.env
-# Edit backend/.env with your API keys
+git clone https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai.git
+cd ai-for-marketers-hackathon-visionaryai
 ```
 
-### 2. Start with Docker Compose
+### 2. Start with Docker Compose (Recommended)
 
 ```bash
 docker-compose up -d
 ```
 
-This starts:
+This starts all services:
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000
 - **API Docs:** http://localhost:8000/docs
 - **PostgreSQL:** localhost:5432
 - **Redis:** localhost:6379
+
+Wait 15-20 seconds, then visit **http://localhost:3000** in Chrome.
 
 ### 3. Manual Setup (without Docker)
 
@@ -86,10 +101,10 @@ npm run dev
 
 **Fastest way to run the project — double-click one file:**
 
-Double-click `run-hackathon.ps1` (or right-click → Run with PowerShell).
+Double-click `setup.bat` (Windows) or run `bash run.sh` (Mac/Linux).
 This single script will:
 1. Start Docker Desktop Service if it's stopped
-2. Launch all 4 services (database, cache, backend, frontend)
+2. Launch all services (database, cache, backend, frontend)
 3. Open **only Google Chrome** with the running website
 4. No other applications will open — no console windows, no error pages
 
