@@ -2,7 +2,18 @@
 
 ## "The Autonomous AI Marketing Team"
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+
 > AI-powered marketing operating system for small businesses. Automate content, SEO, ads, campaigns, analytics, and more — all from one platform.
+
+---
+
+## 🚀 Live Demo
+
+**Frontend:** [https://marketpilot-frontend.vercel.app](https://marketpilot-frontend.vercel.app)  
+**Backend API:** [https://marketpilot-api.onrender.com](https://marketpilot-api.onrender.com)  
+**API Docs:** [https://marketpilot-api.onrender.com/docs](https://marketpilot-api.onrender.com/docs)
 
 ---
 
@@ -149,6 +160,23 @@ npm run dev
 │  Gemini API  │   ChromaDB (vectors)     │
 └──────────────┴──────────────────────────┘
 ```
+
+## Cloud Deployment
+
+One-click deployment to production:
+
+| Component | Platform | Button |
+|---|---|---|
+| **Frontend** | Vercel | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai) |
+| **Backend** | Render | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai) |
+
+### Deploy Steps
+
+1. **Backend (Render):** Click the Render button above, connect your GitHub repo, and deploy the backend service. Copy the Render URL.
+2. **Frontend (Vercel):** Click the Vercel button above. In Vercel project settings, set `NEXT_PUBLIC_API_URL` to your Render backend URL.
+3. **CORS:** Update `CORS_ORIGINS` in Render backend environment variables to include your Vercel frontend URL.
+
+> **Note:** Free tier services (Vercel Hobby, Render Free) may sleep after inactivity. First load may take a few seconds.
 
 ## AI Modules
 
