@@ -4,6 +4,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/new/template?template=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
 
 > AI-powered marketing operating system for small businesses. Automate content, SEO, ads, campaigns, analytics, and more — all from one platform.
 
@@ -169,14 +170,31 @@ One-click deployment to production:
 |---|---|---|
 | **Frontend** | Vercel | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai) |
 | **Backend** | Render | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai) |
+| **Backend** | Railway | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/new/template?template=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai) |
 
 ### Deploy Steps
 
-1. **Backend (Render):** Click the Render button above, connect your GitHub repo, and deploy the backend service. Copy the Render URL.
-2. **Frontend (Vercel):** Click the Vercel button above. In Vercel project settings, set `NEXT_PUBLIC_API_URL` to your Render backend URL.
-3. **CORS:** Update `CORS_ORIGINS` in Render backend environment variables to include your Vercel frontend URL.
+**Option A: Railway (Recommended if you don't have Render)**
+1. Sign up at [railway.app](https://railway.app) with your GitHub account
+2. Click "New Project" → "Deploy from GitHub repo" → select this repository
+3. Railway auto-detects the Python backend and deploys it
+4. Copy the Railway backend URL (e.g., `https://marketpilot-api.up.railway.app`)
+5. Add a PostgreSQL database: click "+ New" → "Database" → "PostgreSQL"
+6. Connect the database to your backend service (Railway auto-sets `DATABASE_URL`)
+7. Add environment variables: `JWT_SECRET`, `JWT_REFRESH_SECRET`, `ENVIRONMENT=production`, `CORS_ORIGINS=https://your-vercel-app.vercel.app`
 
-> **Note:** Free tier services (Vercel Hobby, Render Free) may sleep after inactivity. First load may take a few seconds.
+**Option B: Render**
+1. Click the Render button above, connect your GitHub repo, and deploy the backend service. Copy the Render URL.
+
+**Frontend (Vercel):**
+1. Sign up at [vercel.com](https://vercel.com) with your GitHub account
+2. Click "Add New Project" → import this repository
+3. In project settings, set `NEXT_PUBLIC_API_URL` to your Railway/Render backend URL
+4. Deploy
+
+**CORS:** Update `CORS_ORIGINS` in your backend environment variables to include your Vercel frontend URL.
+
+> **Note:** Free tier services (Vercel Hobby, Render Free, Railway Free) may sleep after inactivity. First load may take a few seconds.
 
 ## AI Modules
 
