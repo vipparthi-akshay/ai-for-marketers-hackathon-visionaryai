@@ -37,14 +37,40 @@ Deploy this project to the cloud for free in 2 minutes. No local setup required.
 
 ### Deploy Steps
 
-1. **Backend (Railway):** Click the Railway button above → Sign up with GitHub → Deploy. Copy your Railway backend URL.
-2. **Frontend (Vercel):** Click the Vercel button above → Sign up with GitHub → Import this repository.
-3. **Connect them:** In Vercel project settings, set `NEXT_PUBLIC_API_URL` to your Railway backend URL.
-4. **CORS:** In Railway backend environment variables, set `CORS_ORIGINS` to your Vercel frontend URL.
+**Step 1: Deploy Backend (Railway)**
+1. Click the **"Deploy on Railway"** button above
+2. Sign up with your GitHub account (free)
+3. Railway will auto-detect the Python backend and deploy it
+4. Wait ~1-2 minutes for deployment to complete
+5. Copy your Railway backend URL (e.g., `https://marketpilot-api.up.railway.app`)
 
-> **Live URLs will appear here after deployment!**
-> - Frontend: `https://marketpilot-frontend.vercel.app`
-> - Backend: `https://marketpilot-api.up.railway.app`
+**Step 2: Deploy Frontend (Vercel)**
+1. Click the **"Deploy with Vercel"** button above
+2. Sign up with your GitHub account (free)
+3. Vercel will import the repository and deploy the frontend
+4. Wait ~1-2 minutes for deployment to complete
+5. Copy your Vercel frontend URL (e.g., `https://marketpilot-frontend.vercel.app`)
+
+**Step 3: Connect Frontend to Backend**
+1. In your Vercel project dashboard, go to **Settings** → **Environment Variables**
+2. Add a new environment variable:
+   - **Key:** `NEXT_PUBLIC_API_URL`
+   - **Value:** Your Railway backend URL (from Step 1)
+3. Click **Save** and **Redeploy** the Vercel project
+
+**Step 4: Configure CORS**
+1. In your Railway project dashboard, go to your backend service → **Variables**
+2. Add/modify the `CORS_ORIGINS` variable:
+   - **Value:** Your Vercel frontend URL (from Step 2)
+3. Railway will automatically redeploy with the new settings
+
+### Verify Deployment
+
+- **Frontend:** Open your Vercel URL in a browser
+- **Backend Health:** Visit `https://your-railway-url.up.railway.app/health` - should return `{"status": "healthy"}`
+- **API Docs:** Visit `https://your-railway-url.up.railway.app/docs`
+
+> **Note:** If you see an error about "image.png" during Vercel deployment, this is from Vercel's platform AI features, not from this codebase. The deployment will still succeed. If needed, disable AI-powered site analysis in your Vercel project settings.
 
 ---
 
