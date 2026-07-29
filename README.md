@@ -28,73 +28,37 @@ Open **http://localhost:3000** in your browser.
 
 ---
 
-## 🌐 Live Demo (One-Click Deploy)
+## 🌐 Live Demo
 
-Deploy this project to the cloud for free in 2 minutes. No local setup required.
+Click below to open the live demo of MarketPilot AI:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/new/template?template=https://github.com/vipparthi-akshay/ai-for-marketers-hackathon-visionaryai)
+[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-MarketPilot_AI-brightgreen?style=for-the-badge)](https://marketpilot-frontend.vercel.app)
 
-### Deploy Steps
-
-**Step 1: Deploy Backend (Railway)**
-1. Click the **"Deploy on Railway"** button above
-2. Sign up with your GitHub account (free)
-3. Railway will auto-detect the Python backend and deploy it
-4. Wait ~1-2 minutes for deployment to complete
-5. Copy your Railway backend URL (e.g., `https://marketpilot-api.up.railway.app`)
-
-**Step 2: Deploy Frontend (Vercel)**
-1. Click the **"Deploy with Vercel"** button above
-2. Sign up with your GitHub account (free)
-3. **CRITICAL:** Before deploying, set the **Root Directory** to `frontend`
-   - In the Vercel import screen, look for **Root Directory** or go to **Settings** → **General** → **Root Directory**
-   - Set it to: `frontend`
-   - **Why:** Your Next.js app is in the `frontend/` folder, not the repo root
-4. Click **Deploy**
-5. Wait ~1-2 minutes for deployment to complete
-6. Copy your Vercel frontend URL (e.g., `https://marketpilot-frontend.vercel.app`)
-
-**Step 3: Connect Frontend to Backend**
-1. In your Vercel project dashboard, go to **Settings** → **Environment Variables**
-2. Add a new environment variable:
-   - **Key:** `NEXT_PUBLIC_API_URL`
-   - **Value:** Your Railway backend URL (from Step 1)
-3. Click **Save** and **Redeploy** the Vercel project
-
-**Step 4: Configure CORS**
-1. In your Railway project dashboard, go to your backend service → **Variables**
-2. Add/modify the `CORS_ORIGINS` variable:
-   - **Value:** Your Vercel frontend URL (from Step 2)
-3. Railway will automatically redeploy with the new settings
-
-### Troubleshooting Vercel
-
-**Error: "No Next.js version detected"**
-- **Cause:** Vercel is looking for `package.json` in the repo root, but your Next.js app is in `frontend/`
-- **Fix:** Set **Root Directory** to `frontend` in Vercel project settings:
-  1. Go to your Vercel project
-  2. Click **Settings** → **General**
-  3. Find **Root Directory** and set it to `frontend`
-  4. Save and trigger a new deploy
-
-**Error: "Cannot read image.png"**
-- This is from Vercel's AI platform features, not from this codebase
-- The deployment will still succeed
-- To suppress it: disable AI-powered site analysis in Vercel project settings
-
-### Verify Deployment
-
-- **Frontend:** Open your Vercel URL in a browser
-- **Backend Health:** Visit `https://your-railway-url.up.railway.app/health` - should return `{"status": "healthy"}`
-- **API Docs:** Visit `https://your-railway-url.up.railway.app/docs`
+> **Note:** The live demo runs on free cloud hosting. If the site is asleep, wait 10-20 seconds for it to wake up.
 
 ---
 
-## Live Demo (Local)
+## 🚀 Run Locally
 
-When you run the project locally, you get:
+**Prerequisite:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and make sure it's running.
 
+Then run:
+
+| Platform | Command / File |
+|---|---|
+| **Windows** | Double-click `setup.bat` |
+| **Mac / Linux** | Run `bash run.sh` |
+| **Any (PowerShell)** | Run `.\run-hackathon.ps1` |
+
+Or directly with Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+Open **http://localhost:3000** in your browser.
+
+This starts:
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000
 - **API Docs:** http://localhost:8000/docs
