@@ -1,29 +1,47 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { getSession, clearSession, type Registration } from "@/lib/auth";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { LandingBackground } from "@/components/backgrounds/LandingBackground";
-import { LetterAnimator } from "@/components/shared/LetterAnimator";
 import {
-  Brain, Users, PenTool, BarChart3, Workflow, Megaphone, Search,
-  Building2, LineChart, Target, ArrowRight, Sparkles, Zap, Globe,
-  Check, Star, ChevronRight, Play, Rocket, Mail, Shield, Clock,
-  MessageSquare, Layout, ChevronDown, Sun, Moon,
+  Sparkles, Zap, Target, Bot, BarChart3, Users, Trophy,
+  ChevronRight, Globe, TrendingUp, Cpu, Layers, Rocket,
+  Star, Menu, X, ArrowRight, Clock, Shield, Database,
+  Mail, Search, Workflow, Split, Lock, Check, Gauge,
 } from "lucide-react";
 
-function AnimatedSection({
-  children, className = "", delay = 0,
-}: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-60px" });
+function Section({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
+  return (
+    <section id={id} className={`py-20 md:py-28 ${className}`}>
+      <div className="max-w-6xl mx-auto px-6">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function useReveal<T extends Element>() {
+  const ref = useRef<T>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+  const [forced, setForced] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setForced(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return { ref, visible: isInView || forced };
+}
+
+function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.5, delay, ease: [0.25, 0.4, 0.25, 1] }}
       className={className}
     >
@@ -32,15 +50,14 @@ function AnimatedSection({
   );
 }
 
-function StaggerContainer({
-  children, className = "", staggerDelay = 0.06,
-}: { children: React.ReactNode; className?: string; staggerDelay?: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
+function StaggerContainer({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <motion.div
-      ref={ref} initial="hidden" animate={isInView ? "visible" : "hidden"}
-      variants={{ hidden: {}, visible: { transition: { staggerChildren: staggerDelay } } }}
+      ref={ref}
+      initial="hidden"
+      animate={visible ? "visible" : "hidden"}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
       className={className}
     >
       {children}
@@ -62,44 +79,597 @@ function StaggerItem({ children, className = "" }: { children: React.ReactNode; 
   );
 }
 
-function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+      {children}
+    </span>
+  );
+}
+
+function SectionHeading({ badge, title, subtitle }: { badge: string; title: string; subtitle?: string }) {
+  return (
+    <div className="text-center mb-14">
+      <Badge>{badge}</Badge>
+      <h2 className="font-display text-3xl font-bold mt-4 md:text-4xl">{title}</h2>
+      {subtitle && <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
+    </div>
+  );
+}
+
+export default function Home() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [account, setAccount] = useState<Registration | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const duration = 1200;
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [isInView, target]);
+    setAccount(getSession());
+  }, []);
+
+  const goToRegister = () => router.push("/register");
+
+  const handleSignOut = () => {
+    clearSession();
+    setAccount(null);
+    setMobileOpen(false);
+  };
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: "smooth" }); }
+    setMobileOpen(false);
+  };
 
   return (
-    <motion.span ref={ref} initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      className="font-display text-4xl md:text-5xl font-bold text-foreground"
-    >
-      {count.toLocaleString()}{suffix}
-    </motion.span>
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      <div className="gradient-glow fixed inset-0 pointer-events-none" />
+
+      <div className="relative z-10">
+        <header className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-4 mt-3 md:mx-8">
+            <div className="glass rounded-lg border border-white/5 px-5 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <span className="font-display text-sm font-semibold hidden sm:block">MarketGenius AI</span>
+              </div>
+              <nav className="hidden md:flex items-center gap-6">
+                {["Features", "How It Works", "Platform", "Technology", "FAQ"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </nav>
+              <div className="flex items-center gap-3">
+                {account ? (
+                  <>
+                    <Link
+                      href="/tracks"
+                      className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Launch Platform
+                    </Link>
+                    <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                        {account.teamName.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span>{account.teamName}</span>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="rounded-lg border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors hidden sm:block"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => router.push("/signin")}
+                      className="rounded-lg border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors hidden sm:block"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={goToRegister}
+                      className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors hidden sm:block"
+                    >
+                      Get Started
+                    </button>
+                  </>
+                )}
+                <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2" aria-label="Menu">
+                  {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <AnimatePresence>
+            {mobileOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mx-4 md:mx-8 overflow-hidden"
+              >
+                <div className="glass rounded-lg border border-white/5 px-5 py-4 mt-1 space-y-2">
+                  {["Features", "How It Works", "Platform", "Technology", "FAQ"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, "-"))}
+                      className="block w-full text-left text-sm text-muted-foreground hover:text-foreground py-2"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                  {account ? (
+                    <>
+                      <Link
+                        href="/tracks"
+                        className="block w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground text-center"
+                      >
+                        Launch Platform
+                      </Link>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                          {account.teamName.slice(0, 1).toUpperCase()}
+                        </span>
+                        <span>{account.teamName}</span>
+                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full rounded-lg border border-border py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => { setMobileOpen(false); router.push("/signin"); }}
+                        className="block w-full rounded-lg border border-border py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={goToRegister}
+                        className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+                      >
+                        Get Started
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </header>
+
+        {/* Hero */}
+        <section className="relative pt-36 pb-20 md:pt-44 md:pb-28">
+          <div className="max-w-5xl mx-auto px-6 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6"
+            >
+              <Badge>AI-Powered Marketing Automation Platform</Badge>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="font-display text-4xl font-bold leading-[1.1] tracking-tight md:text-6xl lg:text-7xl"
+            >
+              Marketing Automation,{" "}
+              <span className="gradient-text">Powered by AI</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground"
+            >
+              MarketGenius AI is a production-ready platform that generates content, automates campaigns,
+              personalizes customer journeys, and optimizes conversions — so your team can focus on growth,
+              not repetitive work.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            >
+              <button
+                onClick={goToRegister}
+                className="group inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all"
+              >
+                Get Started Free
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button
+                onClick={() => scrollTo("features")}
+                className="inline-flex items-center gap-2 rounded-lg border border-border px-8 py-3.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+              >
+                <Layers className="h-4 w-4" />
+                Explore Features
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4"
+            >
+              {[
+                { icon: Layers, label: "20+ Marketing Tools" },
+                { icon: Cpu, label: "4 AI Models" },
+                { icon: Globe, label: "50+ Languages" },
+                { icon: Clock, label: "24/7 Automation" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-border bg-card p-4">
+                  <item.icon className="h-5 w-5 text-primary mx-auto mb-2" />
+                  <div className="text-sm font-semibold">{item.label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Problem */}
+        <Section className="bg-muted/30 border-y border-border">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="The Challenge"
+              title="Marketing Teams Are Stretched Thin"
+              subtitle="Modern marketing demands more channels, more content, and faster iteration than any team can deliver manually."
+            />
+            <StaggerContainer className="grid gap-4 md:grid-cols-3">
+              {[
+                { icon: Clock, title: "Content Bottlenecks", desc: "Writing blogs, ads, emails, and social posts for every channel consumes hours of every day." },
+                { icon: Split, title: "Fragmented Campaigns", desc: "Orchestrating multi-channel campaigns without automation leads to inconsistent messaging and missed follow-ups." },
+                { icon: BarChart3, title: "Guesswork Optimization", desc: "Without real-time data, teams struggle to attribute results and optimize spend effectively." },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="h-full rounded-xl border border-border bg-card p-6 card-hover text-center">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <item.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* The Project */}
+        <Section id="the-project">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="The Project"
+              title="Real-World AI Marketing Solutions"
+              subtitle="Create real-world marketing solutions using AI that businesses can deploy immediately."
+            />
+            <div className="rounded-xl border border-border bg-card p-6 md:p-8">
+              <p className="text-muted-foreground mb-6">
+                By the end of the hackathon, teams must deliver:
+              </p>
+              <StaggerContainer className="space-y-4">
+                {[
+                  { icon: Rocket, text: "A working AI-powered marketing tool or platform" },
+                  { icon: Workflow, text: "Campaign automation workflows" },
+                  { icon: Bot, text: "AI-generated content assets" },
+                  { icon: BarChart3, text: "Analytics dashboards or insights engine" },
+                  { icon: Star, text: "Demo-ready product" },
+                ].map((item) => (
+                  <StaggerItem key={item.text}>
+                    <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 card-hover">
+                      <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm text-foreground leading-relaxed">{item.text}</span>
+                    </div>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </div>
+          </FadeIn>
+        </Section>
+
+        {/* AI-Driven Marketing */}
+        <Section id="ai-marketing" className="bg-muted/30 border-y border-border">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="AI-Driven Marketing"
+              title="What AI Makes Possible"
+              subtitle="Marketing is being rewritten by AI. These are the capabilities that separate modern teams from the rest."
+            />
+            <StaggerContainer className="grid gap-4 md:grid-cols-2">
+              {[
+                { icon: Bot, title: "Content Creation Powered by AI", desc: "High-quality marketing copy, blogs, social posts, and ad creatives generated at scale." },
+                { icon: Target, title: "Hyper-Personalization at Scale", desc: "Personalized experiences for every customer segment, powered by behavioral AI." },
+                { icon: Cpu, title: "Automated Decision-Making", desc: "Real-time decisions on campaign optimization, budget allocation, and targeting." },
+                { icon: TrendingUp, title: "Real-Time Campaign Optimization", desc: "Continuously optimize campaigns based on performance data and AI recommendations." },
+                { icon: BarChart3, title: "Data-Driven Growth", desc: "Every decision backed by data — AI analyzes patterns, predicts outcomes, and drives measurable growth." },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="flex gap-4 p-5 rounded-xl border border-border bg-card card-hover">
+                    <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* Features */}
+        <Section id="features">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="Platform"
+              title="Everything Your Marketing Team Needs"
+              subtitle="A complete suite of AI-powered tools built for modern marketing teams — from content creation to conversion optimization."
+            />
+
+            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: Bot, title: "AI Content Generation", desc: "Generate blogs, ad copy, social posts, emails, and SEO content from a simple brief in seconds." },
+                { icon: Workflow, title: "Campaign Builder", desc: "Design multi-channel campaigns with visual orchestration and intelligent scheduling." },
+                { icon: Zap, title: "Marketing Automation", desc: "Trigger-based workflows that follow up, segment, and nurture contacts automatically." },
+                { icon: BarChart3, title: "Analytics Dashboard", desc: "Real-time metrics, conversion tracking, and revenue insights in one view." },
+                { icon: Users, title: "Customer Segmentation", desc: "Build rule-based audiences and deliver the right message to the right people." },
+                { icon: Split, title: "A/B Testing", desc: "Split-test subject lines, creatives, and CTAs with statistically significant results." },
+                { icon: Mail, title: "Email Marketing", desc: "Professional templates, scheduled sends, and open and click tracking." },
+                { icon: Search, title: "SEO Analyzer", desc: "On-page scoring, keyword recommendations, and competitor tracking." },
+                { icon: Target, title: "Personalization Engine", desc: "Deliver dynamic, segment-aware content across every touchpoint." },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="h-full rounded-xl border border-border bg-card p-6 card-hover">
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-semibold mb-1.5">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* How It Works */}
+        <Section id="how-it-works" className="bg-muted/30 border-y border-border">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="How It Works"
+              title="From Setup to Scale in Three Steps"
+            />
+            <StaggerContainer className="grid gap-5 md:grid-cols-3">
+              {[
+                { icon: Database, title: "1. Connect Your Data", desc: "Sync your channels, audiences, and campaign history into one unified workspace." },
+                { icon: Cpu, title: "2. Let AI Create", desc: "AI generates content, builds workflows, and recommends optimizations based on your goals." },
+                { icon: Rocket, title: "3. Automate & Measure", desc: "Launch automated campaigns, track performance in real time, and scale what works." },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="rounded-xl border border-border bg-card p-7 card-hover text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                      <item.icon className="h-7 w-7" />
+                    </div>
+                    <h3 className="font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* Platform Tools */}
+        <Section id="platform">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="Working Tools"
+              title="Launch the Platform"
+              subtitle="Try the live tools we built. Each one solves a real marketing problem — no setup required."
+            />
+            <StaggerContainer className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: Bot, title: "AI Content Engine", desc: "Automate blogs, ads, social media, and SEO content.", href: "/tracks/content-engine", gradient: "from-purple-500/20 to-blue-500/10" },
+                { icon: TrendingUp, title: "AI Ads Optimization", desc: "Build systems that optimize ad spend and targeting.", href: "/tracks/ads-optimizer", gradient: "from-emerald-500/20 to-teal-500/10" },
+                { icon: Zap, title: "Marketing Automation", desc: "Create end-to-end campaign automation.", href: "/tracks/marketing-automation", gradient: "from-amber-500/20 to-orange-500/10" },
+                { icon: BarChart3, title: "Customer Insights & Analytics", desc: "Predict behavior, segment audiences, and generate insights.", href: "/tracks/analytics", gradient: "from-blue-500/20 to-indigo-500/10" },
+                { icon: Target, title: "Personalization Engines", desc: "Deliver one to one personalized experiences at scale.", href: "/tracks/personalization", gradient: "from-pink-500/20 to-rose-500/10" },
+              ].map((track) => (
+                <StaggerItem key={track.title}>
+                  <Link href={track.href} className={`relative block h-full rounded-xl border border-border bg-card p-7 card-hover overflow-hidden group`}>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${track.gradient} opacity-50`} />
+                    <div className="relative">
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <track.icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                        {track.title}
+                        <ChevronRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{track.desc}</p>
+                    </div>
+                  </Link>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* Technology */}
+        <Section id="technology" className="bg-muted/30 border-y border-border">
+          <FadeIn className="max-w-4xl mx-auto">
+            <SectionHeading
+              badge="Technology"
+              title="Built on a Modern Stack"
+              subtitle="Production-grade architecture that scales from local development to enterprise deployment."
+            />
+            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {[
+                { icon: Layers, title: "Frontend", items: ["Next.js", "React", "TypeScript", "Tailwind CSS"] },
+                { icon: Workflow, title: "Backend", items: ["FastAPI", "Python", "Celery", "REST API"] },
+                { icon: Database, title: "Data Layer", items: ["PostgreSQL", "Redis", "ChromaDB", "RabbitMQ"] },
+                { icon: Cpu, title: "AI Models", items: ["GPT-4o", "Claude 3.5", "Gemini 1.5", "DALL-E 3"] },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="h-full rounded-xl border border-border bg-card p-6 card-hover">
+                    <item.icon className="h-5 w-5 text-primary mb-3" />
+                    <h3 className="font-semibold mb-3">{item.title}</h3>
+                    <ul className="space-y-1.5">
+                      {item.items.map((tech) => (
+                        <li key={tech} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                          {tech}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </Section>
+
+        {/* Security */}
+        <Section>
+          <FadeIn className="max-w-4xl mx-auto">
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                { icon: Shield, title: "Enterprise Security", desc: "JWT-based authentication, role-based access control, and strict input validation across all endpoints." },
+                { icon: Lock, title: "Data Protection", desc: "Hashed credentials, encrypted API keys, and immutable audit logging for compliance-ready operations." },
+                { icon: Gauge, title: "Performance", desc: "Async task orchestration with Celery and Redis-backed caching keep the platform fast at scale." },
+                { icon: Star, title: "Proven Reliability", desc: "Containerized deployment with Docker, health checks, and monitoring built into every service." },
+              ].map((item) => (
+                <StaggerItem key={item.title}>
+                  <div className="flex gap-4 p-5 rounded-xl border border-border bg-card card-hover">
+                    <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </StaggerItem>
+              ))}
+            </div>
+          </FadeIn>
+        </Section>
+
+        {/* FAQ */}
+        <Section id="faq" className="bg-muted/30 border-y border-border">
+          <FadeIn className="max-w-2xl mx-auto">
+            <SectionHeading
+              badge="FAQ"
+              title="Frequently Asked Questions"
+            />
+            <div className="space-y-0">
+              {[
+                { q: "What is MarketGenius AI?", a: "MarketGenius AI is an AI-powered marketing automation platform that generates content, automates campaigns, personalizes customer journeys, and optimizes conversions." },
+                { q: "How does the AI content generation work?", a: "You provide a short brief — your product, target audience, and goal — and the engine generates blogs, ad copy, social posts, emails, and SEO meta in seconds." },
+                { q: "Do I need technical skills to use it?", a: "No. The platform is designed for marketers. Workflows are visual, and content is generated from plain-language inputs." },
+                { q: "Can I try the tools before registering?", a: "The live tools require an account. Registering takes less than a minute, and all core tools are available immediately." },
+                { q: "Which AI models does the platform use?", a: "The platform integrates GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, and DALL-E 3 for generation, analysis, and imagery." },
+                { q: "How is my data protected?", a: "We use JWT authentication, role-based access, encrypted credentials, and audit logging. Your data is never exposed or sold." },
+              ].map((faq, i) => (
+                <FAQItem key={i} q={faq.q} a={faq.a} />
+              ))}
+            </div>
+          </FadeIn>
+        </Section>
+
+        {/* CTA */}
+        <Section id="register">
+          <FadeIn className="max-w-3xl mx-auto">
+            <div className="relative rounded-2xl border border-primary/30 bg-card p-10 md:p-14 text-center overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+              <div className="relative">
+                <Badge>Get Started</Badge>
+                <h2 className="font-display text-3xl font-bold mt-4 mb-4 md:text-4xl">
+                  Start Automating Your Marketing Today
+                </h2>
+                <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+                  Create your free account and start using the full suite of AI-powered marketing tools immediately.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    onClick={goToRegister}
+                    className="group inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all"
+                  >
+                    Create Your Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+                  <button
+                    onClick={() => scrollTo("platform")}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-8 py-3.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    <Target className="h-4 w-4" />
+                    View Platform Tools
+                  </button>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+        </Section>
+
+        {/* Footer */}
+        <footer className="border-t border-border py-10">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+                  <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+                </div>
+                <span className="font-display text-sm font-semibold">MarketGenius AI</span>
+              </div>
+              <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
+                <button onClick={() => scrollTo("how-it-works")} className="hover:text-foreground transition-colors">How It Works</button>
+                <button onClick={() => scrollTo("technology")} className="hover:text-foreground transition-colors">Technology</button>
+                <button onClick={() => scrollTo("faq")} className="hover:text-foreground transition-colors">FAQ</button>
+              </div>
+            </div>
+            <div className="mt-6 pt-6 border-t border-border text-center text-xs text-muted-foreground">
+              &copy; {new Date().getFullYear()} MarketGenius AI. All rights reserved. Built for the AI for Marketers Hackathon.
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 }
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-border last:border-0">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center justify-between w-full py-5 text-left group"
       >
-        <span className="font-medium text-foreground group-hover:text-primary transition-colors pr-4">{q}</span>
-        <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200", open && "rotate-180")} />
+        <span className="text-sm font-medium group-hover:text-primary transition-colors pr-4">{q}</span>
+        <ChevronRight className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
       </button>
       <motion.div
         initial={false}
@@ -112,566 +682,3 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     </div>
   );
 }
-
-export default function LandingPage() {
-  return (
-    <div className="relative min-h-screen overflow-hidden scroll-smooth bg-background">
-      <LandingBackground />
-      <div className="relative z-10">
-        <Navbar />
-
-        {/* Hero */}
-        <section className="relative pt-28 pb-16 md:pt-40 md:pb-24">
-          <div className="hero-gradient-subtle absolute inset-0" />
-
-          <div className="relative max-w-5xl mx-auto px-6 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <LetterAnimator text="AI-Powered Marketing Platform" effect="slide" tag="span" stagger={0.02} className="inline-block" />
-              <ChevronRight className="h-3.5 w-3.5" />
-            </motion.div>
-
-            <div className="font-display text-4xl font-bold leading-[1.1] tracking-tight md:text-6xl lg:text-7xl text-foreground">
-              <LetterAnimator
-                text="The Autonomous"
-                effect="spring"
-                tag="h1"
-                delay={0.2}
-                stagger={0.035}
-              />
-              <br />
-              <LetterAnimator
-                text="AI Marketing Team"
-                effect="elastic"
-                tag="span"
-                delay={0.4}
-                stagger={0.05}
-                className="inline-block"
-                highlightClassName="text-primary"
-              />
-            </div>
-
-            <motion.p
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.35 }}
-              className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground"
-            >
-              Enter your business once. AI automatically builds your entire marketing operation — content, SEO, ads, campaigns, analytics, and more.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
-            >
-              <Link
-                href="/register"
-                className="group inline-flex items-center gap-2 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.98]"
-              >
-                Start Free — No Card Required
-                <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/80 backdrop-blur-sm px-7 py-3 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-muted hover:border-primary/20 hover:shadow-sm active:scale-[0.98]"
-              >
-                <Play className="h-4 w-4" />
-                See How It Works
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground"
-            >
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                Free to start
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                No credit card required
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                Set up in 3 minutes
-              </span>
-            </motion.div>
-
-            {/* App mockup */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-              className="relative mt-16 mx-auto max-w-4xl"
-            >
-              <div className="rounded-xl border border-border bg-card shadow-xl overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
-                  <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-                  <div className="ml-3 h-5 w-40 rounded bg-muted/50" />
-                </div>
-                <div className="p-6 md:p-8 bg-card">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2 space-y-3">
-                      <div className="h-24 rounded-lg bg-primary/5 border border-border" />
-                      <div className="grid grid-cols-3 gap-3">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className="h-16 rounded-lg bg-muted/50 border border-border" />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="h-28 rounded-lg bg-muted/30 border border-border" />
-                      <div className="h-12 rounded-lg bg-muted/30 border border-border" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute inset-0 -z-10 rounded-xl bg-primary/5 blur-2xl" />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Social proof logos */}
-        <section className="py-12 border-y border-border">
-          <div className="max-w-5xl mx-auto px-6">
-            <AnimatedSection>
-              <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground mb-8">
-                Trusted by innovative companies
-              </p>
-            </AnimatedSection>
-            <StaggerContainer className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              {["TechFlow", "GrowthScale", "BrandForward", "NexaDigital", "CloudSpark", "PixelCraft"].map((name) => (
-                <StaggerItem key={name}>
-                  <div className="flex items-center gap-2 opacity-40 hover:opacity-60 transition-opacity">
-                    <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                      {name[0]}
-                    </div>
-                    <span className="font-display font-semibold text-sm text-muted-foreground">{name}</span>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="features" className="py-20 md:py-28">
-          <div className="max-w-5xl mx-auto px-6">
-            <AnimatedSection className="mx-auto max-w-2xl text-center mb-14">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">Features</span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground">
-                <LetterAnimator text="12 AI Modules." effect="bounce" tag="span" stagger={0.04} className="inline-block" />{" "}
-                <LetterAnimator text="One Platform." effect="bounce" tag="span" stagger={0.04} className="inline-block text-primary" />
-              </h2>
-              <p className="mt-4 text-base text-muted-foreground">
-                Each module works autonomously and collaboratively — giving you an entire marketing department powered by artificial intelligence.
-              </p>
-            </AnimatedSection>
-
-            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.05}>
-              {modules.map((mod) => (
-                <StaggerItem key={mod.title}>
-                  <div className="group h-full rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:border-primary/30 hover:bg-primary/[0.02] hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5">
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors duration-200 group-hover:bg-primary/15">
-                      <mod.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-base font-semibold text-foreground mb-1.5 transition-colors duration-200 group-hover:text-primary">{mod.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{mod.description}</p>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        </section>
-
-        {/* How it works */}
-        <section id="how-it-works" className="py-20 md:py-28 bg-muted/30">
-          <div className="max-w-5xl mx-auto px-6">
-            <AnimatedSection className="mx-auto max-w-2xl text-center mb-16">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">How It Works</span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground">
-                <LetterAnimator text="Five steps to" effect="wave" tag="span" stagger={0.03} className="inline-block" />{" "}
-                <LetterAnimator text="marketing mastery" effect="wave" tag="span" stagger={0.03} className="inline-block text-primary" />
-              </h2>
-              <p className="mt-4 text-base text-muted-foreground">From sign-up to full marketing automation in under 5 minutes.</p>
-            </AnimatedSection>
-
-            <div className="relative mx-auto max-w-3xl">
-              <div className="absolute left-7 top-0 bottom-0 w-px bg-border hidden md:block" />
-              <div className="space-y-12 md:space-y-14">
-                {steps.map((step, i) => (
-                  <AnimatedSection key={step.title} delay={i * 0.08}>
-                    <div className="flex gap-6 items-start">
-                      <div className="relative flex-shrink-0">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                          <step.icon className="h-6 w-6" />
-                        </div>
-                        <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-background border border-border text-[10px] font-bold text-primary">{i + 1}</div>
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed text-sm">{step.description}</p>
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats */}
-        <section className="py-20 md:py-28 border-y border-border">
-          <div className="max-w-5xl mx-auto px-6">
-            <StaggerContainer className="grid gap-10 md:grid-cols-4 text-center">
-              {stats.map((stat) => (
-                <StaggerItem key={stat.label}>
-                  <div className="space-y-2">
-                    <CountUp target={stat.value} suffix={stat.suffix} />
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section className="py-20 md:py-28">
-          <div className="max-w-5xl mx-auto px-6">
-            <AnimatedSection className="mx-auto max-w-2xl text-center mb-14">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">Testimonials</span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground">
-                <LetterAnimator text="Loved by" effect="rotate" tag="span" stagger={0.04} className="inline-block" />{" "}
-                <LetterAnimator text="marketers" effect="rotate" tag="span" stagger={0.05} className="inline-block text-primary" />
-              </h2>
-            </AnimatedSection>
-
-            <StaggerContainer className="grid gap-5 md:grid-cols-3">
-              {testimonials.map((t) => (
-                <StaggerItem key={t.name}>
-                  <div className="h-full rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5">
-                    <div className="mb-3 flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400 transition-transform duration-200 hover:scale-110" />
-                      ))}
-                    </div>
-                    <p className="mb-5 text-sm text-muted-foreground leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary transition-colors duration-200 group-hover:bg-primary/15">{t.name[0]}</div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{t.name}</p>
-                        <p className="text-xs text-muted-foreground">{t.role}</p>
-                      </div>
-                    </div>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section id="pricing" className="py-20 md:py-28 bg-muted/30">
-          <div className="max-w-6xl mx-auto px-6">
-            <AnimatedSection className="mx-auto max-w-2xl text-center mb-14">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">Pricing</span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground">
-                <LetterAnimator text="Simple, transparent" effect="flip" tag="span" stagger={0.03} className="inline-block" />{" "}
-                <LetterAnimator text="pricing" effect="flip" tag="span" stagger={0.05} className="inline-block text-primary" />
-              </h2>
-              <p className="mt-4 text-base text-muted-foreground">Start free, scale as you grow. No hidden fees. Cancel anytime.</p>
-            </AnimatedSection>
-
-            <StaggerContainer className="grid gap-5 md:grid-cols-4 max-w-6xl mx-auto" staggerDelay={0.08}>
-              {pricingPlans.map((plan) => (
-                <StaggerItem key={plan.name}>
-                  <div className={`relative h-full flex flex-col rounded-xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
-                    plan.popular ? "border-primary bg-card shadow-md ring-1 ring-primary/20 hover:shadow-primary/10"
-                      : "border-border bg-card hover:border-primary/20 hover:shadow-md"
-                  }`}>
-                    {plan.popular && (
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground shadow-sm">
-                        Most Popular
-                      </div>
-                    )}
-                    {plan.freeTrial && (
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-sm">
-                        Free Trial
-                      </div>
-                    )}
-                    <div className="mb-4">
-                      <h3 className="text-base font-semibold text-foreground mb-1">{plan.name}</h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{plan.description}</p>
-                    </div>
-                    <div className="mb-5">
-                      <div className="flex items-baseline gap-1">
-                        <span className={`font-display font-bold text-foreground ${plan.freeTrial ? "text-2xl" : "text-3xl"}`}>{plan.price}</span>
-                        {plan.period && <span className="text-sm text-muted-foreground">/{plan.period}</span>}
-                      </div>
-                      {plan.savings && <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">{plan.savings}</p>}
-                    </div>
-                    <ul className="mb-6 flex-1 space-y-2.5">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link href="/register" className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:shadow-sm active:scale-[0.98] ${
-                      plan.popular || plan.freeTrial
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "border border-border bg-background text-foreground hover:bg-muted hover:border-primary/20"
-                    }`}>
-                      {plan.cta} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
-                    </Link>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-
-            <AnimatedSection className="mt-10 text-center" delay={0.3}>
-              <p className="text-sm text-muted-foreground">
-                All plans include SSL, 99.9% uptime SLA, and 24/7 support.
-              </p>
-            </AnimatedSection>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="py-20 md:py-28 border-t border-border">
-          <div className="max-w-2xl mx-auto px-6">
-            <AnimatedSection className="text-center mb-12">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-muted-foreground">FAQ</span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground">
-                <LetterAnimator text="Frequently asked questions" effect="blur" tag="span" stagger={0.025} className="inline-block" />
-              </h2>
-            </AnimatedSection>
-
-            <AnimatedSection>
-              <div>
-                {faqs.map((faq) => (
-                  <FAQItem key={faq.q} q={faq.q} a={faq.a} />
-                ))}
-              </div>
-            </AnimatedSection>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-20 md:py-28 bg-muted/30">
-          <div className="max-w-3xl mx-auto px-6">
-            <AnimatedSection>
-              <div className="rounded-xl border border-border bg-card p-10 md:p-14 text-center">
-                <h2 className="font-display text-3xl font-bold md:text-4xl text-foreground mb-4">
-                  <LetterAnimator text="Ready to Transform" effect="pop" tag="span" stagger={0.03} className="inline-block" />
-                  <br />
-                  <LetterAnimator text="Your Marketing?" effect="swing" tag="span" stagger={0.04} className="inline-block" />
-                </h2>
-                <p className="text-base text-muted-foreground mb-8 max-w-lg mx-auto">
-                  Join thousands of businesses using AI to automate their marketing. Start in under 3 minutes — no credit card needed.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <Link href="/register"
-                    className="group inline-flex items-center gap-2 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors duration-150 hover:bg-primary/90 active:scale-[0.98]"
-                  >
-                    Get Started Free <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link href="/login"
-                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-7 py-3 text-sm font-semibold text-foreground transition-colors duration-150 hover:bg-muted"
-                  >
-                    Schedule a Demo
-                  </Link>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-border py-10">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-              <div className="flex items-center gap-2">
-                <Image src="/logo-white.svg" alt="MarketPilot AI" width={28} height={28} className="rounded-md" />
-                <span className="font-display text-base font-semibold text-foreground">MarketPilot AI</span>
-              </div>
-              <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                <Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link>
-                <Link href="/register" className="hover:text-foreground transition-colors">Get Started</Link>
-              </div>
-            </div>
-            <div className="mt-6 pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-              <span className="text-xs text-muted-foreground">© 2026 MarketPilot AI. All rights reserved.</span>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/20">
-                <Sparkles className="h-3 w-3 text-primary" />
-                <span className="text-xs font-medium text-primary">Built for HackIndia 2026</span>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-}
-
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
-  }, []);
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-    setMobileOpen(false);
-  };
-
-  return (
-    <motion.header
-      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="fixed top-0 left-0 right-0 z-50"
-    >
-      <div className={cn(
-        "mx-4 mt-3 rounded-lg border bg-background/90 backdrop-blur-md transition-all duration-200 md:mx-8",
-        scrolled ? "border-border shadow-sm" : "border-transparent"
-      )}>
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-5 py-2.5">
-          <Link href="/" className="flex items-center gap-2 shrink-0" prefetch={true}>
-            <Image src="/logo-white.svg" alt="MarketPilot AI" width={28} height={28} className="rounded-md" />
-            <span className="font-display text-sm font-semibold text-foreground">MarketPilot AI</span>
-          </Link>
-          <nav className="hidden items-center gap-6 md:flex">
-            {["Features", "How It Works", "Pricing"].map((item) => (
-              <button
-                key={item}
-                onClick={() => scrollTo(item.toLowerCase().replace(/\s+/g, "-"))}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/login"
-              className="hidden text-sm font-medium text-foreground/80 hover:text-foreground sm:block px-3 py-1.5 transition-colors"
-              prefetch={true}
-            >
-              Sign in
-            </Link>
-            <Link href="/register"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.97]"
-              prefetch={true}
-            >
-              Get Started
-            </Link>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-md hover:bg-muted transition-colors" aria-label="Toggle menu">
-              <div className="space-y-1">
-                <div className={cn("w-4 h-0.5 bg-foreground transition-all", mobileOpen && "rotate-45 translate-y-[3px]")} />
-                <div className={cn("w-4 h-0.5 bg-foreground transition-all", mobileOpen && "opacity-0")} />
-                <div className={cn("w-4 h-0.5 bg-foreground transition-all", mobileOpen && "-rotate-45 -translate-y-[3px]")} />
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }} className="md:hidden overflow-hidden border-t border-border"
-            >
-              <div className="px-5 py-4 space-y-2">
-                {["Features", "How It Works", "Pricing"].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => scrollTo(item.toLowerCase().replace(/\s+/g, "-"))}
-                    className="block text-sm text-muted-foreground hover:text-foreground py-2 w-full text-left"
-                  >
-                    {item}
-                  </button>
-                ))}
-                <div className="pt-2 border-t border-border space-y-2">
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground py-2" prefetch={true}>Sign in</Link>
-                  <Link href="/register" onClick={() => setMobileOpen(false)}
-                    className="block text-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
-                    prefetch={true}
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.header>
-  );
-}
-
-const modules = [
-  { icon: Brain, title: "Business Analyzer", description: "AI-powered SWOT analysis, market positioning, growth recommendations, and tailored marketing strategies generated in seconds." },
-  { icon: Users, title: "Persona Generator", description: "Auto-generate detailed buyer personas with demographics, pain points, preferred channels, and messaging triggers." },
-  { icon: PenTool, title: "Content Engine", description: "Generate blogs, social posts, email sequences, ad copy, landing pages, and 15+ content types — all tone-matched to your brand." },
-  { icon: BarChart3, title: "Campaign Builder", description: "End-to-end campaign strategies with timelines, KPIs, budget allocation, content calendars, and multi-channel rollout plans." },
-  { icon: Workflow, title: "Marketing Automation", description: "Visual drag-and-drop workflow builder for email sequences, lead nurturing, and cross-channel orchestration." },
-  { icon: Megaphone, title: "Ad Optimization", description: "Google, Meta, and LinkedIn ad creatives with CTR/CPC prediction, A/B test recommendations, and budget optimization." },
-  { icon: Search, title: "SEO Engine", description: "Live website crawling, keyword research, meta tag optimization, heading structure analysis, and competitor SEO benchmarking." },
-  { icon: Building2, title: "Competitor Intelligence", description: "Track competitors weekly with SWOT comparison, strategy gap analysis, content benchmarking, and real-time alerts." },
-  { icon: LineChart, title: "Analytics Dashboard", description: "ROI predictions, traffic growth graphs, conversion funnels, channel performance breakdowns, and actionable AI insights." },
-  { icon: Target, title: "Personalization Engine", description: "Dynamic content personalization, segment-specific messaging, product recommendations, and audience-tailored campaigns." },
-  { icon: MessageSquare, title: "AI Marketing Chat", description: "Real-time streaming chat with full business context — ask anything about your marketing strategy and get data-backed answers." },
-  { icon: Layout, title: "Content Calendar", description: "Visual monthly calendar with scheduled posts, platform-specific color coding, and publish-ready queues." },
-];
-
-const steps = [
-  { icon: Globe, title: "Tell us about your business", description: "Answer a few quick questions about your industry, products, and target audience. The onboarding wizard takes under 60 seconds." },
-  { icon: Sparkles, title: "AI builds your marketing stack", description: "AI agents analyze your input and generate personas, content strategies, campaign plans, SEO audits, ad creatives, and automation workflows." },
-  { icon: Layout, title: "Review and customize", description: "Browse your AI-generated content calendar, tweak ad copy, adjust campaign budgets, and fine-tune automation workflows." },
-  { icon: Rocket, title: "Launch across all channels", description: "Publish content directly to social media, send email campaigns, activate ad spend, and schedule automation workflows — all from one dashboard." },
-  { icon: LineChart, title: "Monitor and optimize", description: "Track performance with live analytics, ROI predictions, and conversion funnels. AI continuously adjusts for maximum impact." },
-];
-
-const stats = [
-  { value: 12000, suffix: "+", label: "Businesses Onboarded" },
-  { value: 350, suffix: "K+", label: "Content Pieces Created" },
-  { value: 98, suffix: "%", label: "Customer Satisfaction" },
-  { value: 4, suffix: "x", label: "Average ROI Increase" },
-];
-
-const testimonials = [
-  { name: "Sarah Chen", role: "Head of Marketing, TechFlow", quote: "MarketPilot replaced our entire marketing team's grunt work. What used to take a week now takes 10 minutes. The AI content engine is frighteningly good." },
-  { name: "Rajesh Kumar", role: "Founder, GrowthScale", quote: "As a solo founder, I couldn't afford a marketing team. MarketPilot gave me the equivalent of a 5-person department for a fraction of the cost." },
-  { name: "Emily Rodriguez", role: "CMO, BrandForward", quote: "The competitor intelligence module alone is worth it. We discovered three major gaps in our strategy that AI identified in seconds." },
-];
-
-const pricingPlans = [
-  { name: "Free Trial", description: "All features. No cost. 15 full days.", price: "₹0", period: "15 days", savings: "Full unrestricted access", popular: false, freeTrial: true, features: ["1 business profile", "Unlimited AI content generation", "SEO audit & live crawl", "Workflow automation builder", "AI marketing chat assistant", "Competitor tracking", "All integrations included"], cta: "Start Free Trial" },
-  { name: "Basic", description: "Perfect for freelancers and sole proprietors.", price: "₹499", period: "month", savings: "Billed monthly", popular: false, freeTrial: false, features: ["1 business profile", "AI content (30 posts/mo)", "Basic SEO audit & suggestions", "Email marketing (500 sends/mo)", "Social media scheduling", "Performance dashboard", "Email support"], cta: "Get Basic" },
-  { name: "Medium", description: "For growing teams scaling their marketing.", price: "₹1,999", period: "month", savings: "Save ₹6,000/year vs monthly", popular: true, freeTrial: false, features: ["Up to 3 business profiles", "Unlimited AI content generation", "Advanced SEO with live crawl", "Ad platform integration (Google/Meta)", "Competitor intelligence", "Workflow automation builder", "AI marketing chat with context", "Team collaboration (3 members)", "Priority support"], cta: "Get Medium Plan" },
-  { name: "Professional", description: "For agencies and marketing departments.", price: "₹6,999", period: "month", savings: "Dedicated account manager", popular: false, freeTrial: false, features: ["Up to 10 business profiles", "Unlimited AI content generation", "Advanced SEO + keyword research", "All ad platform integrations", "Competitor intelligence + alerts", "Custom workflow automation", "AI chat with full business context", "Team collaboration (unlimited)", "API access & webhooks", "Dedicated account manager"], cta: "Get Professional" },
-];
-
-const faqs = [
-  { q: "How does MarketPilot AI work?", a: "MarketPilot uses advanced AI models to analyze your business profile and automatically generate a complete marketing strategy including content, SEO, campaigns, ads, and analytics. Simply fill out a brief questionnaire and AI handles the rest." },
-  { q: "Do I need marketing experience to use it?", a: "Not at all. MarketPilot is designed for business owners and marketers of all experience levels. The AI handles the heavy lifting — you just review and approve." },
-  { q: "Can I customize the AI-generated content?", a: "Yes, everything AI generates is fully editable. You can tweak copy, adjust campaigns, refine personas, and modify any output before publishing." },
-  { q: "What platforms does MarketPilot integrate with?", a: "MarketPilot integrates with Google Ads, Meta Ads, LinkedIn, major email platforms, social media networks, and analytics tools. We're constantly adding new integrations." },
-  { q: "Is my business data secure?", a: "Absolutely. We use enterprise-grade encryption, SOC 2 compliance, and never share your data with third parties. Your business information is completely private." },
-  { q: "What happens after the free trial?", a: "After 15 days, you can choose a paid plan that fits your needs. If you don't upgrade, your account is paused but your data is preserved for 30 days." },
-];
